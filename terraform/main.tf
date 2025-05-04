@@ -128,3 +128,39 @@ resource "aws_lambda_function" "lambda" {
 #   # Function URLが作成された後に権限を付与
 #   depends_on = [aws_lambda_function_url.public_url]
 # }
+
+# API Gateway
+resource "aws_api_gateway_rest_api" "rest" {
+  name = "${local.project}_rest_api"
+  body = templatefile("${path.module}/templates/apigw-template.json", {
+    api_name = "${local.project}_rest_api"
+  })
+}
+
+resource "aws_cloudwatch_log_group" "access_log" {
+  name              = "API-Gateway-ACCESS-Logs_${aws_api_gateway_rest_api.rest.id}/dev"
+  retention_in_days = 7
+}
+
+resource "aws_api_gateway_deployment" "rest" {
+  rest_api_id = aws_api_gateway_rest_api.rest.id
+
+  triggers = {
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.rest.body))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "rest" {
+  deployment_id = aws_api_gateway_deployment.rest.id
+  rest_api_id   = aws_api_gateway_rest_api.rest.id
+  stage_name    = "dev"
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.access_log.arn
+    format          = jsonencode({ "requestId" : "$context.requestId", "extendedRequestId" : "$context.extendedRequestId", "ip" : "$context.identity.sourceIp", "caller" : "$context.identity.caller", "user" : "$context.identity.user", "requestTime" : "$context.requestTime", "httpMethod" : "$context.httpMethod", "resourcePath" : "$context.resourcePath", "status" : "$context.status", "protocol" : "$context.protocol", "responseLength" : "$context.responseLength" })
+  }
+}
