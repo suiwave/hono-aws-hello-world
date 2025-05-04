@@ -6,8 +6,11 @@ app.
     get('/', (c) => {
         return c.text('Hello Hono!')
     })
-    .get('/post', (c) => {
-        return c.text('post!')
+    .get('/posts', (c) => {
+        return c.text('GET /posts !!')
+    })
+    .post('/users', (c) => {
+        return c.text('POST /users !!')
     })
 
 export default app
