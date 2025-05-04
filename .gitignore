@@ -50,6 +50,9 @@ dist
 dist-ssr
 *.local
 
+# Ignore zip
+*.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
