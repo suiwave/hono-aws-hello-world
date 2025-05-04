@@ -1,5 +1,5 @@
-export const greet = (name: string) => {
-    console.log(`こんにちは、${name}！`);
-};
+import { handle } from 'hono/aws-lambda'
 
-greet("esbuild");
+import app from './app'
+
+export const handler = handle(app)
