@@ -1,16 +1,11 @@
 import { Hono } from 'hono'
 
+import book from './routes/book'
+import user from './routes/user'
+
 const app = new Hono()
 
-app.
-    get('/', (c) => {
-        return c.text('Hello Hono!')
-    })
-    .get('/posts', (c) => {
-        return c.text('GET /posts !!')
-    })
-    .post('/users', (c) => {
-        return c.text('POST /users !!')
-    })
+app.route('/book', book)
+app.route('/user', user)
 
 export default app
